@@ -66,9 +66,12 @@ function decodeScriptsInObject(obj: any): void {
 
     for (const key in obj) {
         if (key === 'code' && typeof obj[key] === 'string') {
-            // Check if this looks like an encoded script
+            // Check if this looks like an encoded script with common Ignition escape patterns
             const value = obj[key];
-            if (value.includes('\\n') || value.includes('\\t') || value.includes('\\u')) {
+            // More specific check: look for common Ignition-specific unicode escapes or multiple escape sequences
+            if ((value.includes('\\u003d') || value.includes('\\u003c') || value.includes('\\u003e') || 
+                 value.includes('\\u0026') || value.includes('\\u0027')) ||
+                (value.includes('\\n') && value.includes('\\t'))) {
                 try {
                     obj[key] = decodeCodeText(value);
                 } catch (e) {
@@ -132,7 +135,13 @@ export function isPerspectiveViewJson(document: vscode.TextDocument): boolean {
     const filePath = document.uri.fsPath.toLowerCase();
     
     // Check if the file is in a perspective directory structure
-    if (filePath.includes('perspective') && (filePath.includes('view') || filePath.includes('component'))) {
+    // Use path separators to ensure we're matching directories, not just substrings
+    const pathParts = filePath.split(/[/\\]/);
+    const hasPerspective = pathParts.some(part => part === 'perspective');
+    const hasView = pathParts.some(part => part === 'views' || part === 'view');
+    const hasComponent = pathParts.some(part => part === 'components' || part === 'component');
+    
+    if (hasPerspective && (hasView || hasComponent)) {
         return true;
     }
 
