@@ -34,6 +34,11 @@
 					"default": true,
 					"description": "Whether to verify SSL certificates when making requests to Ignition Gateways."
 				},
+				"ignitionFlint.formatPerspectiveJsonOnSave": {
+					"type": "boolean",
+					"default": false,
+					"description": "Automatically format Perspective view JSON files on save to decode embedded scripts."
+				},
 				"ignitionFlint.ignitionGateways": {
 					"type": "array",
 					"items": {
@@ -135,6 +140,11 @@
 				"command": "ignition-flint.paste-as-json",
 				"category": "Ignition Flint",
 				"title": "Paste as JSON"
+			},
+			{
+				"command": "ignition-flint.format-perspective-json",
+				"category": "Ignition Flint",
+				"title": "Format Perspective JSON"
 			},
 			{
 				"command": "ignition-flint.copy-script-object-path-to-clipboard",
@@ -274,6 +284,11 @@
 					"command": "ignition-flint.paste-as-json",
 					"group": "clipboard",
 					"when": "editorTextFocus && !editorReadonly"
+				},
+				{
+					"command": "ignition-flint.format-perspective-json",
+					"group": "1_modification",
+					"when": "resourceLangId == json"
 				}
 			],
 			"explorer/context": [
