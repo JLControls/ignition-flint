@@ -4,11 +4,8 @@ import { SubscriptionManager } from '../utils/subscriptionManager';
 import { throttle } from '../utils/throttle';
 import { DependencyContainer } from '../dependencyContainer';
 import { updateEditedCode } from '../encodedScriptEditing/documentEditing';
-import { formatPerspectiveJson, isPerspectiveViewJson } from '../commands/formatPerspectiveJson';
 
 const parsedJsonDocuments: Map<vscode.Uri, Map<number, string>> = new Map();
-// Track documents being auto-formatted to prevent infinite recursion
-const formattingInProgress = new Set<string>();
 
 export function registerTextDocumentHandlers(context: vscode.ExtensionContext, subscriptionManager: SubscriptionManager, dependencyContainer: DependencyContainer) {
 	subscriptionManager.add(vscode.workspace.onDidOpenTextDocument((document) => {
@@ -44,44 +41,6 @@ export function registerTextDocumentHandlers(context: vscode.ExtensionContext, s
 
 		if (document.uri.scheme === 'flint') {
 			await updateEditedCode(document);
-		}
-
-		// Format perspective JSON files on save if enabled
-		const formatOnSave = vscode.workspace.getConfiguration('ignitionFlint').get('formatPerspectiveJsonOnSave', false);
-		const documentKey = document.uri.toString();
-		
-		// Check if we're already formatting this document to prevent infinite recursion
-		if (formatOnSave && document.languageId === 'json' && isPerspectiveViewJson(document) && !formattingInProgress.has(documentKey)) {
-			try {
-				const text = document.getText();
-				const formatted = formatPerspectiveJson(text);
-				
-				if (formatted !== text) {
-					// Mark document as being formatted
-					formattingInProgress.add(documentKey);
-					
-					const edit = new vscode.WorkspaceEdit();
-					const fullRange = new vscode.Range(
-						document.positionAt(0),
-						document.positionAt(text.length)
-					);
-					edit.replace(document.uri, fullRange, formatted);
-					await vscode.workspace.applyEdit(edit);
-					
-					// Save again after formatting
-					await document.save();
-					
-					// Remove from formatting set after a delay to ensure save completes
-					setTimeout(() => {
-						formattingInProgress.delete(documentKey);
-					}, 100);
-				}
-			} catch (error) {
-				// Silently ignore formatting errors
-				dependencyContainer.getOutputChannel().appendLine(`Failed to format perspective JSON: ${error}`);
-				// Ensure we clean up the formatting flag on error
-				formattingInProgress.delete(documentKey);
-			}
 		}
 	}));
 }

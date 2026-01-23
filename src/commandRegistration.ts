@@ -6,7 +6,7 @@ import { ScriptElement } from './resources/scriptElements';
 import { buildResourceFileContents } from './utils/resourceFileUtils';
 import { openWithKindling } from './commands/kindlingIntegration';
 import { pasteAsJson } from './commands/jsonPaste';
-import { formatPerspectiveJsonCommand } from './commands/formatPerspectiveJson';
+import { PerspectiveJsonContentProvider, viewPerspectiveJsonCommand } from './providers/perspectiveJsonViewProvider';
 import { provideCodeActions } from './encodedScriptEditing/codeActions';
 import { CodeType, codeTypeMap } from './utils/codeTypes';
 import * as fs from 'fs';
@@ -34,9 +34,15 @@ function registerCodeTypeCommands(
 export function registerCommands(context: vscode.ExtensionContext, dependencyContainer: DependencyContainer, subscriptionManager: any) {
 	const ignitionFileSystemProvider = dependencyContainer.getFileSystemService().ignitionFileSystemProvider;
 
+	// Register the Perspective JSON content provider
+	const perspectiveJsonProvider = new PerspectiveJsonContentProvider();
+	subscriptionManager.add(
+		vscode.workspace.registerTextDocumentContentProvider('perspective-json-view', perspectiveJsonProvider)
+	);
+
 	subscriptionManager.add(vscode.commands.registerCommand('ignition-flint.open-with-kindling', openWithKindling));
 	subscriptionManager.add(vscode.commands.registerCommand('ignition-flint.paste-as-json', pasteAsJson));
-	subscriptionManager.add(vscode.commands.registerCommand('ignition-flint.format-perspective-json', formatPerspectiveJsonCommand));
+	subscriptionManager.add(vscode.commands.registerCommand('ignition-flint.view-perspective-json', viewPerspectiveJsonCommand));
 	subscriptionManager.add(vscode.languages.registerCodeActionsProvider('json', { provideCodeActions }));
 
 	registerCodeTypeCommands(context, dependencyContainer.getVirtualFileSystemProvider(), openIgnitionCode);

@@ -1,76 +1,79 @@
 # Perspective JSON Formatting Example
 
-This document demonstrates the Perspective JSON formatting feature in Flint for Ignition.
+This document demonstrates the Perspective JSON viewing feature in Flint for Ignition.
 
 ## Problem
 
-When working with Perspective view JSON files in Ignition 8.3, embedded Python scripts (like transforms) are stored with Unicode escape sequences, making them difficult to read:
+When working with Perspective view JSON files in Ignition 8.3, embedded Python scripts (like transforms) are stored with escape sequences, making them difficult to read directly in the JSON file:
 
 ```json
 {
   "transforms": [
     {
-      "code": "\tprefix_tag \u003d \"[default]Configuration/HistoryPrefix\"\n\tdesc_suffix \u003d \"/VisDesc\"\n\tunit_suffix \u003d \"/Performance/Parameters.Units\"\n\t# Update this suffix per transform (Bad/Good/Total)\n\tdata_suffix \u003d \"/Performance/Count/CountTotalShiftDay\" \n\t\n\tunit_map \u003d {\n\t    \"Rods\":    {\"axis\": \"Rods\",    \"plot\": 0},\n\t    \"Loops\":   {\"axis\": \"Loops\",   \"plot\": 1},\n\t    \"Loafs\":   {\"axis\": \"Loafs\",   \"plot\": 2}\n\t}\n\t\n\tread_paths \u003d [prefix_tag] + [\"{}{}\".format(p, desc_suffix) for p in value]\n\tresults \u003d system.tag.readBlocking(read_paths)\n\t\n\treturn results",
+      "code": "\tprefix_tag = \"[default]Configuration/HistoryPrefix\"\n\tdesc_suffix = \"/VisDesc\"\n\tunit_suffix = \"/Performance/Parameters.Units\"\n\t# Update this suffix per transform\n\tdata_suffix = \"/Performance/Count/CountTotalShiftDay\"",
       "type": "script"
     }
   ]
 }
 ```
 
-Notice the `\u003d` for `=`, `\n` for newlines, `\t` for tabs - all on a single line!
+Notice the `\n` for newlines and `\t` for tabs - all on a single line in the JSON!
 
 ## Solution
 
-Use the **Format Perspective JSON** command to decode these scripts into a more readable format:
+Use the **View Perspective JSON (Rendered)** command to open a rendered view where the escape sequences are displayed as actual newlines and tabs, without modifying the original file.
 
-```json
-{
-  "transforms": [
-    {
-      "code": "\tprefix_tag = \"[default]Configuration/HistoryPrefix\"\n\tdesc_suffix = \"/VisDesc\"\n\tunit_suffix = \"/Performance/Parameters.Units\"\n\t# Update this suffix per transform (Bad/Good/Total)\n\tdata_suffix = \"/Performance/Count/CountTotalShiftDay\" \n\t\n\tunit_map = {\n\t    \"Rods\":    {\"axis\": \"Rods\",    \"plot\": 0},\n\t    \"Loops\":   {\"axis\": \"Loops\",   \"plot\": 1},\n\t    \"Loafs\":   {\"axis\": \"Loafs\",   \"plot\": 2}\n\t}\n\t\n\tread_paths = [prefix_tag] + [\"{}{}\".format(p, desc_suffix) for p in value]\n\tresults = system.tag.readBlocking(read_paths)\n\t\n\treturn results",
-      "type": "script"
-    }
-  ]
-}
-```
-
-Now the code uses standard escape sequences like `\n` and `\t` instead of Unicode escapes, making it much easier to read!
+**How it works:**
+1. The original JSON file remains unchanged on disk
+2. A new editor tab opens showing a "rendered" version
+3. The rendered view decodes escape sequences for display only
+4. You can still use the existing script editing features for making changes
 
 ## How to Use
 
-### Manual Formatting
+### View Rendered Perspective JSON
 
 1. Open a Perspective view JSON file
 2. Right-click in the editor
-3. Select **Format Perspective JSON**
+3. Select **View Perspective JSON (Rendered)**
+4. A new editor tab opens beside your original showing the decoded view
 
-### Automatic Formatting on Save
-
-Add this to your VS Code settings (`.vscode/settings.json` or user settings):
-
-```json
-{
-  "ignitionFlint.formatPerspectiveJsonOnSave": true
-}
-```
-
-Now every time you save a Perspective view JSON file, it will be automatically formatted.
+The rendered view will show the Python code with proper formatting:
+- `\n` displayed as actual line breaks
+- `\t` displayed as proper indentation
+- Unicode escapes like `\u003d` decoded to `=`
 
 ## Benefits
 
-- **Easier to Read**: Decoded scripts are much easier to scan and understand
-- **Better for Version Control**: Standard escape sequences create cleaner diffs
-- **Improved Editing**: You can still use the existing script editing features, but the JSON itself is more maintainable
-- **Works with Ignition 8.3**: Fully compatible with the filesystem-based project structure in Ignition 8.3
+- **Non-destructive**: Original files are never modified
+- **Easy to Read**: Escape sequences are rendered as formatting
+- **Safe for Version Control**: No accidental file changes
+- **Works with Existing Tools**: Still use the script editing features to make changes
+- **Ignition 8.3 Compatible**: Works seamlessly with filesystem-based projects
 
 ## Editing Scripts
 
-While the formatted JSON is more readable, for complex script editing, you should still use the built-in script editing features:
+For editing scripts, continue to use the built-in script editing features:
 
-1. Navigate to a `"code":` line in the JSON
+1. In the **original** JSON file, navigate to a `"code":` line
 2. Press `Ctrl+.` (or click the lightbulb icon)
 3. Select **Edit Script Transform** (or appropriate script type)
-4. Edit the script in a dedicated Python editor
+4. Edit the script in a dedicated Python editor with full IDE features
 5. Save to update the JSON
 
-This gives you full Python syntax highlighting, IntelliSense, and other IDE features while editing.
+The rendered view is for **viewing only** - use the script editor for making changes.
+
+## Example
+
+**Original JSON file (with escape sequences):**
+```json
+"code": "\tvalue = system.tag.read(\"[default]MyTag\")\n\treturn value * 2"
+```
+
+**Rendered view (escape sequences displayed as formatting):**
+```
+"code": "	value = system.tag.read(\"[default]MyTag\")
+	return value * 2"
+```
+
+The rendered view makes it much easier to understand the script logic at a glance!
