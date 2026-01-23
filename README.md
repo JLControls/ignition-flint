@@ -24,6 +24,11 @@ The `Copy as JSON` feature is designed to enhance the development workflow by al
 
 - **Using the Feature**: Simply select where you would like to add it into a text file, right-click, and select `Copy as JSON`. The extension will convert the selected data into a well-formatted JSON string and copy it to your clipboard, ready for pasting wherever you need it.
 
+### Perspective View JSON Rendered View
+Flint for Ignition includes a feature to view Perspective view JSON files with embedded scripts rendered for better readability. Open a rendered view where escape sequences (`\n`, `\t`, etc.) are displayed as actual newlines and tabs without modifying the original file.
+
+- **Using the Feature**: Open a Perspective view JSON file, right-click in the editor, and select `View Perspective JSON (Rendered)`. A new editor tab opens showing the decoded view while keeping the original file unchanged.
+
 ### Ignition Project Script Explorer
 Flint for Ignition introduces a new explorer view called "Ignition Project Scripts" that provides a hierarchical view of all the scripts in your Ignition projects. This feature enables developers to easily navigate through script resources, packages, and modules, making it more convenient to locate and manage scripts within the project structure.
 
@@ -56,6 +61,27 @@ Flint for Ignition introduces functionality to manage inherited resources in Ign
 7. **Navigating to Script Elements**: Use the "Navigate to Script Element" command to quickly jump to specific script elements within your project.
 
 8. **Managing Inherited Resources**: Override and discard inherited resources using the context menu options in the "Ignition Project Scripts" view.
+
+9. **Viewing Perspective JSON**: Right-click in a Perspective view JSON file and select "View Perspective JSON (Rendered)" to see embedded scripts with escape sequences rendered as actual formatting.
+
+## Ignition Automation Tools Integration
+
+This extension includes the [ignition-automation-tools](https://github.com/inductiveautomation/ignition-automation-tools) library as a submodule in the `libs/` directory. This library provides utilities for automated testing of Ignition Perspective sessions using Selenium.
+
+To use these tools:
+
+1. Initialize the submodule: `git submodule update --init --recursive`
+2. Install dependencies: `cd libs/ignition-automation-tools && pip install -r requirements.txt`
+3. Add to Python path in `.vscode/settings.json`:
+   ```json
+   {
+     "python.analysis.extraPaths": [
+       "${workspaceFolder}/libs/ignition-automation-tools"
+     ]
+   }
+   ```
+
+See `libs/README.md` for more details on using the automation tools.
 
 ## Kindling: A Closer Look
 

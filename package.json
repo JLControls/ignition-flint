@@ -137,6 +137,11 @@
 				"title": "Paste as JSON"
 			},
 			{
+				"command": "ignition-flint.view-perspective-json",
+				"category": "Ignition Flint",
+				"title": "View Perspective JSON (Rendered)"
+			},
+			{
 				"command": "ignition-flint.copy-script-object-path-to-clipboard",
 				"title": "Copy path",
 				"category": "Ignition Flint",
@@ -274,6 +279,11 @@
 					"command": "ignition-flint.paste-as-json",
 					"group": "clipboard",
 					"when": "editorTextFocus && !editorReadonly"
+				},
+				{
+					"command": "ignition-flint.view-perspective-json",
+					"group": "navigation",
+					"when": "resourceLangId == json"
 				}
 			],
 			"explorer/context": [
